@@ -10,7 +10,6 @@
  *
  * Only one thing was needed,	which is the author's info was not allowed
  * been DELETED.
- *
  */
 
 #ifndef BPANN_CLION_BPANN_H
