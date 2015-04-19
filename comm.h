@@ -23,8 +23,8 @@
 #include <math.h>
 
 #define ERROR_ALLOC() {\
-	printf("can't alloc memory !\n"); \
-	exit(-1); \
+    printf("can't alloc memory !\n"); \
+    exit(-1); \
 }
 
 #define JUDGE(x) {\
@@ -32,9 +32,7 @@ if (NULL == (x)){ ERROR_ALLOC(); }\
 }
 
 
-#define Abs(x)	(((x)>0.0)?(x):(-(x)))
-
-
+#define Abs(x)    (((x)>0.0)?(x):(-(x)))
 
 
 #endif //BPANN_COMM_H

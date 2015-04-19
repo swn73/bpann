@@ -18,35 +18,37 @@
 
 #include"../comm.h"
 
-typedef struct{
+typedef struct {
     char *name;
-    int row,col;
+    int row, col;
     int *data;
-}Image;
+} Image;
 
 /***	user accessible macros	***/
-#define ROW(img)	((img)->row)
-#define COL(img)	((img)->col)
-#define NAME(img)	((img)->name)
+#define ROW(img)    ((img)->row)
+#define COL(img)    ((img)->col)
+#define NAME(img)    ((img)->name)
 
 /***	user accessible functions	***/
 Image *img_open();
+
 Image *img_creat();
+
 void img_setpixel();
+
 int img_getpixel();
+
 void img_free();
 
 
+#define RGB_TO_GREY(r, g, b)    ((r)+(g)+(b))/3
 
-#define RGB_TO_GREY(r,g,b)	((r)+(g)+(b))/3
-
-Image *Image_alloc(int cols,int rows)
-{
-    Image *img = (Image*)malloc(sizeof(Image));
+Image *Image_alloc(int cols, int rows) {
+    Image *img = (Image *) malloc(sizeof(Image));
     img->name = NULL;
     img->col = cols;
     img->row = rows;
-    img->data = (int*)malloc(sizeof(int)*(ROW(img)*COL(img)));
+    img->data = (int *) malloc(sizeof(int) * (ROW(img) * COL(img)));
     return img;
 }
 
@@ -54,20 +56,23 @@ Image *Image_alloc(int cols,int rows)
 char *Get_name(char *filepath);
 
 Image *Imread_ppm_P6(char *filepath);
+
 Image *Imread_ppm_P3(char *filepath);
 
 Image *Imread_pgm_P5(char *filrname);
+
 Image *Imread_pgm_P2(char *filepath);
 
 Image *Imread_pbm_P4(char *filepath);
+
 Image *Imread_pbm_P1(char *filepath);
 
-#define SET_PIXEL(img,rw,cl,e)	\
+#define SET_PIXEL(img, rw, cl, e)    \
 {\
-	(img)->data[(img)->col*((rw)-1) + (cl)] = e; \
+    (img)->data[(img)->col*((rw)-1) + (cl)] = e; \
 }
 
-#define GET_PIXEL(img,rw,cl)	(img)->data[(img)->col*((rw)-1)+(cl)]
+#define GET_PIXEL(img, rw, cl)    (img)->data[(img)->col*((rw)-1)+(cl)]
 
 /*
     Type	            Magic number    	Magic number	Extension	Colors
@@ -77,46 +82,42 @@ Image *Imread_pbm_P1(char *filepath);
 
 */
 
-Image *Imread_PNM(char *filepath)
-{
+Image *Imread_PNM(char *filepath) {
 #define BUF_SIZE 16
     char buf[BUF_SIZE];
     int type;
 
-    FILE *file=fopen(filepath,"r");
+    FILE *file = fopen(filepath, "r");
 
-    if(NULL==file)
-    {
-        fprintf(stderr, "Imread_PNM: can't open file %s.\n",filepath);
+    if (NULL == file) {
+        fprintf(stderr, "Imread_PNM: can't open file %s.\n", filepath);
         exit(-1);
     }
     fgets(buf, BUF_SIZE, file);
     sscanf(buf, "P%d", &type);
-    if (type > 6 || type < 1)
-    {
+    if (type > 6 || type < 1) {
         fprintf(stderr, "Imread_PNM: bad type:P%d", type);
         return NULL;
     }
-    Image * img = NULL;
-    switch(type)
-    {
+    Image *img = NULL;
+    switch (type) {
         case 1:
-            img=Imread_pbm_P1(filepath);
+            img = Imread_pbm_P1(filepath);
             break;
         case 2:
-            img=Imread_pgm_P2(filepath);
+            img = Imread_pgm_P2(filepath);
             break;
         case 3:
-            img=Imread_ppm_P3(filepath);
+            img = Imread_ppm_P3(filepath);
             break;
         case 4:
-            img=Imread_pbm_P4(filepath);
+            img = Imread_pbm_P4(filepath);
             break;
         case 5:
-            img=Imread_pgm_P5(filepath);
+            img = Imread_pgm_P5(filepath);
             break;
         case 6:
-            img=Imread_ppm_P6(filepath);
+            img = Imread_ppm_P6(filepath);
             break;
         default :
             // nothing to do
@@ -133,21 +134,18 @@ char *Get_name(char *filepath) {
     char seq = '/';
 #endif
     char *part = filepath;
-    while (*part != '\0')
-    {
+    while (*part != '\0') {
         part++;
     }
     int len = part - filepath;
-    while (part >= filepath&&*part != seq)
-    {
+    while (part >= filepath && *part != seq) {
         part--;
     }
     part = part + 1;
-    char *filename = (char*)malloc((len + 1)*sizeof(char));
+    char *filename = (char *) malloc((len + 1) * sizeof(char));
     JUDGE(filename);
     int i = 0;
-    while (*(part + i) != '\0')
-    {
+    while (*(part + i) != '\0') {
         *(filename + i) = *(part + i);
         i++;
     }
@@ -155,16 +153,14 @@ char *Get_name(char *filepath) {
     return filename;
 }
 
-Image *Imread_ppm_P6(char *filepath)
-{
+Image *Imread_ppm_P6(char *filepath) {
 #ifdef WINDOWS
     FILE *file;
     fopen_s(&file, filepath, "rb");
 #else
     FILE *file = fopen(filepath, "rb");
 #endif
-    if (NULL == file)
-    {
+    if (NULL == file) {
         fprintf(stderr, "Imread_ppm: can't open file %s.\n", filepath);
         exit(-1);
     }
@@ -190,15 +186,13 @@ Image *Imread_ppm_P6(char *filepath)
 #else
     sscanf(buf, "%d", &val_max);
 #endif
-    if (val_max > 255){
+    if (val_max > 255) {
         fprintf(stderr, "only support pixel value lowwer 255. here is %d\n", val_max);
         return NULL;
     }
     int i, j;
-    for (i = 0; i < rl; ++i)
-    {
-        for (j = 0; j < cl; ++j)
-        {
+    for (i = 0; i < rl; ++i) {
+        for (j = 0; j < cl; ++j) {
             int r, g, b;
             r = fgetc(file);
             g = fgetc(file);
