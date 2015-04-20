@@ -67,10 +67,7 @@ Image *Imread_pbm_P4(char *filepath);
 
 Image *Imread_pbm_P1(char *filepath);
 
-#define SET_PIXEL(img, rw, cl, e)    \
-{\
-    (img)->data[(img)->col*((rw)-1) + (cl)] = e; \
-}
+#define SET_PIXEL(img, rw, cl, e)    (img)->data[(img)->col*((rw)-1) + (cl)] = e
 
 #define GET_PIXEL(img, rw, cl)    (img)->data[(img)->col*((rw)-1)+(cl)]
 
@@ -99,6 +96,7 @@ Image *Imread_PNM(char *filepath) {
         fprintf(stderr, "Imread_PNM: bad type:P%d", type);
         return NULL;
     }
+    fclose(file);
     Image *img = NULL;
     switch (type) {
         case 1:
@@ -133,15 +131,16 @@ char *Get_name(char *filepath) {
 #else
     char seq = '/';
 #endif
-    char *part = filepath;
-    while (*part != '\0') {
-        part++;
+    char *part, *tail = filepath;
+    while (*tail != '\0') {
+        tail++;
     }
-    int len = part - filepath;
+    part = tail;
     while (part >= filepath && *part != seq) {
         part--;
     }
     part = part + 1;
+    unsigned long len = tail - part;
     char *filename = (char *) malloc((len + 1) * sizeof(char));
     JUDGE(filename);
     int i = 0;
@@ -164,40 +163,38 @@ Image *Imread_ppm_P6(char *filepath) {
         fprintf(stderr, "Imread_ppm: can't open file %s.\n", filepath);
         exit(-1);
     }
-    char buf[128];
-    fgets(buf, 128, file);
-    fgets(buf, 128, file);
+    char buf_head[128];
+    fgets(buf_head, 128, file);
+    fgets(buf_head, 128, file);
     int cl, rl;
 
 #ifdef WINDOWS
     sscanf_s(buf, "%d %d", &cl, &rl);
 #else
-    sscanf(buf, "%d %d", &cl, &rl);
+    sscanf(buf_head, "%d %d", &cl, &rl);
 #endif
 
     Image *img = Image_alloc(cl, rl);
     NAME(img) = Get_name(filepath);
-    fgets(buf, 128, file);
+    fgets(buf_head, 128, file);
 
     int val_max;
 
 #ifdef WINDOWS
     sscanf_s(buf, "%d", &val_max);
 #else
-    sscanf(buf, "%d", &val_max);
+    sscanf(buf_head, "%d", &val_max);
 #endif
     if (val_max > 255) {
         fprintf(stderr, "only support pixel value lowwer 255. here is %d\n", val_max);
         return NULL;
     }
+    char *buf = (char *) malloc(3 * cl * sizeof(char) + 1);
     int i, j;
     for (i = 0; i < rl; ++i) {
+        fread(buf, sizeof(char), 3 * cl, file);
         for (j = 0; j < cl; ++j) {
-            int r, g, b;
-            r = fgetc(file);
-            g = fgetc(file);
-            b = fgetc(file);
-            SET_PIXEL(img, j, i, RGB_TO_GREY(r, g, b));
+            SET_PIXEL(img, i, j, RGB_TO_GREY(buf[3 * j], buf[3 * j + 1], buf[3 * j + 2]));
         }
     }
     return img;

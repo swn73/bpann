@@ -31,6 +31,12 @@ typedef struct {
     int num_list;
 } TrainingSet;
 
+TrainingSet * training_set_creat(int num_list, int dim_input, int dim_target);
+
+void training_set_free(TrainingSet **p_set);
+
+void training_set_save(TrainingSet *set,char *filename);
+
 TrainingSet *training_set_creat(int num_list, int dim_input, int dim_target) {
     TrainingSet *set = (TrainingSet *) malloc(sizeof(TrainingSet));
     JUDGE(set);
@@ -63,6 +69,11 @@ void training_set_free(TrainingSet **p_set) {
     free(set);
     *p_set=NULL;
 }
+void training_set_save(TrainingSet *set, char *filename) {
+    FILE *file = fopen(filename, "wb");
 
+}
 
 #endif //BPANN_CLION_TRAIN_SET_H
+
+

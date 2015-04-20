@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
 #define ERROR_ALLOC() {\
     printf("can't alloc memory !\n"); \
     exit(-1); \
