@@ -32,8 +32,8 @@
 *
 */
 typedef struct {
-    int layer_n;                    // layers in net
-    int *layer;                        // the units in each layer
+    size_t layer_n;                    // layers in net
+    size_t *layer;                        // the units in each layer
 
     double **layer_units;            // values in each units
 
@@ -51,58 +51,29 @@ typedef struct {
 } Bpann;
 
 void bpann_init();
-
-Bpann *bpann_create(int layer_n, int *layer, double learning_rate, double impulses);
-
+Bpann * bpann_create(size_t layer_n, size_t *layer, double learning_rate, double impulses);
 void bpann_free(Bpann **p_bp);
-
 void bpann_train();
-
 void bpann_feed_forward();
-
 void bpann_save(Bpann *bp, char *file_name);
-
 Bpann *bpann_load(char *file_name);
+void feed_forward(Bpann *bp, double *input);
 
-/******************
-*	get random number between 0.0 and 1.0
-********************/
-double Load_Random_0_to_1() {
-    return (double) rand() / (double) RAND_MAX;
-}
+#define logistic(x) (1.0/(1.0+exp(-(x))))
 
-/******************
-*	get random number between -1.0 and 1.0
-********************/
-double Load_Random_Minus_1_to_1() {
-    return Load_Random_0_to_1() * 2.0 - 1.0;
-}
+double * alloc_1d(size_t size);
+double ** alloc_2d(size_t *array, size_t size);
+double ** alloc_std_2d(size_t row, size_t col);
 
-/*
-*	that is kernel function of Bpann
-*/
-double logistic(double x) {
-    return (1.0 / (1.0 + exp(-x)));
-}
+double *** alloc_3d_weight(size_t *layer, size_t layer_n);
 
-#define FASTCOPY(to, from, len) \
-{\
-    register char *_to=(char*)(to);    \
-    register char *_from=(char*)(from);    \
-    register int _i,_len;    \
-    _len=(len);    \
-    for(_i=0;_i<_len;++_i)    \
-        *(_to++)=*(_from++);    \
-}\
-
-
-double *alloc_1d(int size) {
+double *alloc_1d(size_t size) {
     double *tmp = (double *) malloc(size * sizeof(double));
     JUDGE(tmp);
     return tmp;
 }
 
-double **alloc_2d(int *array, int size) {
+double **alloc_2d(size_t *array, size_t size) {
     double **tmp = (double **) malloc(size * sizeof(double *));
     JUDGE(tmp);
     int i = 0;
@@ -112,7 +83,7 @@ double **alloc_2d(int *array, int size) {
     return tmp;
 }
 
-double **alloc_std_2d(int row, int col) {
+double **alloc_std_2d(size_t row, size_t col) {
     double **tmp = (double **) malloc(row * sizeof(double *));
     JUDGE(tmp);
     int i = 0;
@@ -122,7 +93,7 @@ double **alloc_std_2d(int row, int col) {
     return tmp;
 }
 
-double ***alloc_3d_weight(int *layer, int layer_n) {
+double ***alloc_3d_weight(size_t *layer, size_t layer_n) {
     double ***tmp = (double ***) malloc((layer_n - 1) * sizeof(double **));
     JUDGE(tmp);
     int i;
@@ -132,7 +103,7 @@ double ***alloc_3d_weight(int *layer, int layer_n) {
     return tmp;
 }
 
-Bpann *bpann_create(int layer_n, int *layer, double learning_rate, double impulses) {
+Bpann *bpann_create(size_t layer_n, size_t *layer, double learning_rate, double impulses) {
     Bpann *bp = (Bpann *) malloc(sizeof(Bpann));
     if (NULL == bp) {
         printf("Bpann_create: can't alloc memory !\n");
@@ -149,7 +120,7 @@ Bpann *bpann_create(int layer_n, int *layer, double learning_rate, double impuls
 
     bp->layer_n = layer_n;
 
-    bp->layer = (int *) malloc(layer_n * sizeof(int));
+    bp->layer = (size_t *) malloc(layer_n * sizeof(size_t));
 
     for (i = 0; i < layer_n; ++i) {
         bp->layer[i] = layer[i];
@@ -208,7 +179,7 @@ Bpann *bpann_create(int layer_n, int *layer, double learning_rate, double impuls
 	#ifdef INIT_ZERO_WEIGHT
 				bp->layer_weights[i][j][k]=0;
 	#else
-				bp->layer_weights[i][j][k]=Load_Random_Minus_1_to_1();
+				bp->layer_weights[i][j][k]=RANDOM_minus_1_to_1();
 	#endif
 			}
 		}
@@ -220,7 +191,7 @@ Bpann *bpann_create(int layer_n, int *layer, double learning_rate, double impuls
 #ifdef INIT_ZERO_WEIGHT
 				bp->layer_weights[i][j][k]=0;
 	#else
-                bp->layer_weights[i][j][k] = Load_Random_Minus_1_to_1();
+                bp->layer_weights[i][j][k] = RANDOM_minus_1_to_1();
 #endif
             }
         }
@@ -340,9 +311,9 @@ Bpann *bpann_load(char *filepath) {
         fprintf(stderr, "Function Bpann_load: can't open %s file.\n", filepath);
         exit(-1);
     }
-    int layer_n;
+    size_t layer_n;
     fread(&layer_n, sizeof(int), 1, file);
-    int *layer = (int *) malloc(layer_n * sizeof(int));
+    size_t *layer = (size_t *) malloc(layer_n * sizeof(size_t));
     JUDGE(layer);
     fread(layer, sizeof(int), layer_n, file);
     double learning_rate, impulses;
@@ -355,7 +326,7 @@ Bpann *bpann_load(char *filepath) {
 #undef INIT_ZERO_PREV_WEIGHT
 #undef INIT_ZERO_WEIGHT
 
-    int i, j;
+    size_t i, j;
     for (i = 0; i < layer_n - 1; ++i) {
         for (j = 0; j < layer[i]; ++j) {
             fread(new_bp->layer_weights[i][j], sizeof(double), layer[i + 1], file);

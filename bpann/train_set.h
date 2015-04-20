@@ -61,7 +61,7 @@ void training_set_free(TrainingSet **p_set) {
     }
     free(set->_list);
     free(set);
-    set = NULL;
+    *p_set=NULL;
 }
 
 

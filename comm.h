@@ -31,8 +31,26 @@
 if (NULL == (x)){ ERROR_ALLOC(); }\
 }
 
+/******************
+*	get random number between 0.0 and 1.0
+********************/
+#define RANDOM_0_to_1()  (double) rand() / (double) RAND_MAX
 
-#define Abs(x)    (((x)>0.0)?(x):(-(x)))
+/******************
+*	get random number between -1.0 and 1.0
+********************/
+#define RANDOM_minus_1_to_1()   RANDOM_0_to_1() * 2.0 - 1.0
 
+#define ABS(x)    (((x)>0.0)?(x):(-(x)))
+
+#define FASTCOPY(to, from, len) \
+{\
+    register char *_to=(char*)(to);    \
+    register char *_from=(char*)(from);    \
+    register int _i,_len;    \
+    _len=(len);    \
+    for(_i=0;_i<_len;++_i)    \
+        *(_to++)=*(_from++);    \
+}\
 
 #endif //BPANN_COMM_H
