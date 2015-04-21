@@ -78,7 +78,6 @@ Image *Imread_pbm_P1(char *filepath);
     Portable PixMap     P3	ASCII	        P6	binary	    .ppm	    0–255 (RGB)
 
 */
-
 Image *Imread_PNM(char *filepath) {
 #define BUF_SIZE 16
     char buf[BUF_SIZE];
@@ -197,6 +196,7 @@ Image *Imread_ppm_P6(char *filepath) {
             SET_PIXEL(img, i, j, RGB_TO_GREY(buf[3 * j], buf[3 * j + 1], buf[3 * j + 2]));
         }
     }
+    free(buf);
     return img;
 }
 
