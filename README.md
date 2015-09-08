@@ -1,3 +1,3 @@
 #bpann 
-the Backpropagation algorithm in neural network.  
+About Backpropagation algorithm in neural network.  
 more info will update later.
